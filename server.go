@@ -18,6 +18,6 @@ func main() {
 	m.Run()
 }
 
-func rootHandler(r render.Render, params martini.Params, req *http.Request) string {
-	return "Hi"
+func rootHandler(r render.Render) {
+	r.HTML(200, "root", nil)
 }
