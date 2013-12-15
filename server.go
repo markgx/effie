@@ -1,12 +1,16 @@
 package main
 
 import (
+	"./models"
+	"database/sql"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/binding"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
+	"github.com/coopernurse/gorp"
+	_ "github.com/go-sql-driver/mysql"
 	"net/http"
 )
 
@@ -16,6 +20,23 @@ type Config struct {
 
 type Database struct {
 	DSN string
+}
+
+func DB(dsn string) martini.Handler {
+	return func(c martini.Context) {
+		db, err := sql.Open("mysql", dsn)
+
+		if err != nil {
+			panic(err)
+		}
+
+		dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
+		dbmap.AddTableWithName(models.User{}, "users").SetKeys(true, "ID")
+
+		c.Map(dbmap)
+		defer db.Close()
+		c.Next()
+	}
 }
 
 type LoginForm struct {
@@ -41,6 +62,8 @@ func main() {
 		Layout:    "layout",
 	}))
 
+	m.Use(DB(config.Database.DSN))
+
 	m.Get("/admin", func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
 		u := session.Get("user_id")
 
@@ -55,12 +78,19 @@ func main() {
 		r.HTML(200, "login", nil)
 	})
 
-	m.Post("/login", binding.Form(LoginForm{}), func(loginForm LoginForm) string {
+	m.Post("/login", binding.Form(LoginForm{}), func(w http.ResponseWriter, req *http.Request, loginForm LoginForm, dbmap *gorp.DbMap, session sessions.Session) string {
+		userRepository := models.UserRepository{DbMap: dbmap}
+
 		// TODO: verify log in
 
-		// TODO: if success, set session
+		user, _ := userRepository.FindByUsername(loginForm.Username)
 
-		return fmt.Sprintf("U:%s P:%s", loginForm.Username, loginForm.Password)
+		if user != nil {
+			session.Set("user_id", user.ID)
+			http.Redirect(w, req, "/admin", 301)
+		}
+
+		return fmt.Sprintf("U:%s P:%s v:%+v", loginForm.Username, loginForm.Password, user)
 	})
 
 	m.Run()
