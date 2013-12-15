@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/binding"
 	"github.com/codegangsta/martini-contrib/render"
@@ -9,12 +10,27 @@ import (
 	"net/http"
 )
 
+type Config struct {
+	Database
+}
+
+type Database struct {
+	DSN string
+}
+
 type LoginForm struct {
 	Username string `form:"username"`
 	Password string `form:"password"`
 }
 
 func main() {
+	var config Config
+
+	if _, err := toml.DecodeFile("config.toml", &config); err != nil {
+		fmt.Printf("ERROR: %s\n", err)
+		return
+	}
+
 	m := martini.Classic()
 
 	store := sessions.NewCookieStore([]byte("changethis"))
