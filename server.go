@@ -17,10 +17,9 @@ func main() {
 		Layout:    "layout",
 	}))
 
-	m.Get("/", rootHandler)
-	m.Run()
-}
+	m.Get("/admin", func(r render.Render) {
+		r.HTML(200, "admin_index", nil)
+	})
 
-func rootHandler(r render.Render) {
-	r.HTML(200, "root", nil)
+	m.Run()
 }
