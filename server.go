@@ -93,5 +93,10 @@ func main() {
 		return fmt.Sprintf("U:%s P:%s v:%+v", loginForm.Username, loginForm.Password, user)
 	})
 
+	m.Get("/logout", func(w http.ResponseWriter, req *http.Request, session sessions.Session) {
+		session.Delete("user_id")
+		http.Redirect(w, req, "/login", 301)
+	})
+
 	m.Run()
 }
