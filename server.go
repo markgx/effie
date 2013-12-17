@@ -74,6 +74,28 @@ func main() {
 		r.HTML(200, "admin_index", nil)
 	})
 
+	m.Get("/admin/posts/new", func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
+		u := session.Get("user_id")
+
+		if u == nil {
+			http.Redirect(w, req, "/login", 301)
+		}
+
+		r.HTML(200, "post_form", nil)
+	})
+
+	m.Post("/admin/posts", func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
+		u := session.Get("user_id")
+
+		if u == nil {
+			http.Redirect(w, req, "/login", 301)
+		}
+
+		// TODO: validate and save
+
+		http.Redirect(w, req, "/admin", 301)
+	})
+
 	m.Get("/login", func(r render.Render) {
 		r.HTML(200, "login", nil)
 	})
