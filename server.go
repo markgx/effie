@@ -13,7 +13,6 @@ import (
 	"github.com/codegangsta/martini-contrib/sessions"
 	"github.com/coopernurse/gorp"
 	_ "github.com/go-sql-driver/mysql"
-	"net/http"
 )
 
 type Config struct {
@@ -61,19 +60,10 @@ func main() {
 
 	m.Use(DB(config.Database.DSN))
 
-	m.Get("/admin", middleware.Authenticate, func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
-		r.HTML(200, "admin_index", nil)
-	})
+	m.Get("/admin", middleware.Authenticate, handlers.AdminHome)
 
-	m.Get("/admin/posts/new", middleware.Authenticate, func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
-		r.HTML(200, "post_form", nil)
-	})
-
-	m.Post("/admin/posts", middleware.Authenticate, func(w http.ResponseWriter, req *http.Request, session sessions.Session, r render.Render) {
-		// TODO: validate and save
-
-		http.Redirect(w, req, "/admin", 301)
-	})
+	m.Get("/admin/posts/new", middleware.Authenticate, handlers.NewPost)
+	m.Post("/admin/posts", middleware.Authenticate, handlers.CreatePost)
 
 	m.Get("/login", handlers.Login)
 	m.Post("/login", binding.Form(handlers.LoginForm{}), handlers.LoginPost)
