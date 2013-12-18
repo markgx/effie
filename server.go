@@ -1,8 +1,9 @@
 package main
 
 import (
-	"./models"
 	"database/sql"
+	"effie/handlers"
+	"effie/models"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/codegangsta/martini"
@@ -37,11 +38,6 @@ func DB(dsn string) martini.Handler {
 		defer db.Close()
 		c.Next()
 	}
-}
-
-type LoginForm struct {
-	Username string `form:"username"`
-	Password string `form:"password"`
 }
 
 func main() {
@@ -96,29 +92,9 @@ func main() {
 		http.Redirect(w, req, "/admin", 301)
 	})
 
-	m.Get("/login", func(r render.Render) {
-		r.HTML(200, "login", nil)
-	})
-
-	m.Post("/login", binding.Form(LoginForm{}), func(w http.ResponseWriter, req *http.Request, loginForm LoginForm, dbmap *gorp.DbMap, session sessions.Session) string {
-		userRepository := models.UserRepository{DbMap: dbmap}
-
-		// TODO: verify log in
-
-		user, _ := userRepository.FindByUsername(loginForm.Username)
-
-		if user != nil {
-			session.Set("user_id", user.ID)
-			http.Redirect(w, req, "/admin", 301)
-		}
-
-		return fmt.Sprintf("U:%s P:%s v:%+v", loginForm.Username, loginForm.Password, user)
-	})
-
-	m.Get("/logout", func(w http.ResponseWriter, req *http.Request, session sessions.Session) {
-		session.Delete("user_id")
-		http.Redirect(w, req, "/login", 301)
-	})
+	m.Get("/login", handlers.Login)
+	m.Post("/login", binding.Form(handlers.LoginForm{}), handlers.LoginPost)
+	m.Get("/logout", handlers.LogOut)
 
 	m.Run()
 }

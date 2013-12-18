@@ -1,0 +1,39 @@
+package handlers
+
+import (
+	"effie/models"
+	"fmt"
+	"github.com/codegangsta/martini-contrib/render"
+	"github.com/codegangsta/martini-contrib/sessions"
+	"github.com/coopernurse/gorp"
+	"net/http"
+)
+
+type LoginForm struct {
+	Username string `form:"username"`
+	Password string `form:"password"`
+}
+
+func Login(r render.Render) {
+	r.HTML(200, "login", nil)
+}
+
+func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, dbmap *gorp.DbMap, session sessions.Session) string {
+	userRepository := models.UserRepository{DbMap: dbmap}
+
+	// TODO: verify log in
+
+	user, _ := userRepository.FindByUsername(loginForm.Username)
+
+	if user != nil {
+		session.Set("user_id", user.ID)
+		http.Redirect(w, req, "/admin", 301)
+	}
+
+	return fmt.Sprintf("U:%s P:%s v:%+v", loginForm.Username, loginForm.Password, user)
+}
+
+func LogOut(w http.ResponseWriter, req *http.Request, session sessions.Session) {
+	session.Delete("user_id")
+	http.Redirect(w, req, "/login", 301)
+}
