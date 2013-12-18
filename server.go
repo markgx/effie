@@ -5,7 +5,6 @@ import (
 	"effie/handlers"
 	"effie/middleware"
 	"effie/models"
-	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/binding"
@@ -42,11 +41,7 @@ func DB(dsn string) martini.Handler {
 
 func main() {
 	var config Config
-
-	if _, err := toml.DecodeFile("config.toml", &config); err != nil {
-		fmt.Printf("ERROR: %s\n", err)
-		return
-	}
+	loadConfig(&config)
 
 	m := martini.Classic()
 
@@ -60,6 +55,17 @@ func main() {
 
 	m.Use(DB(config.Database.DSN))
 
+	loadRoutes(m)
+	m.Run()
+}
+
+func loadConfig(config *Config) {
+	if _, err := toml.DecodeFile("config.toml", config); err != nil {
+		panic(err)
+	}
+}
+
+func loadRoutes(m *martini.ClassicMartini) {
 	m.Get("/admin", middleware.Authenticate, handlers.AdminHome)
 
 	m.Get("/admin/posts/new", middleware.Authenticate, handlers.NewPost)
@@ -68,6 +74,4 @@ func main() {
 	m.Get("/login", handlers.Login)
 	m.Post("/login", binding.Form(handlers.LoginForm{}), handlers.LoginPost)
 	m.Get("/logout", handlers.LogOut)
-
-	m.Run()
 }
