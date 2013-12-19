@@ -68,6 +68,7 @@ func loadConfig(config *Config) {
 func loadRoutes(m *martini.ClassicMartini) {
 	m.Get("/admin", middleware.Authenticate, handlers.AdminHome)
 
+	m.Get("/admin/posts", middleware.Authenticate, handlers.PostsIndex)
 	m.Get("/admin/posts/new", middleware.Authenticate, handlers.NewPost)
 	m.Post("/admin/posts", middleware.Authenticate, handlers.CreatePost)
 
