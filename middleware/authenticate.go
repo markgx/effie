@@ -9,7 +9,7 @@ func Authenticate(w http.ResponseWriter, req *http.Request, session sessions.Ses
 	u := session.Get("user_id")
 
 	if u == nil {
-		// TODO: set return url
+		session.Set("return_url", req.URL.String())
 		http.Redirect(w, req, "/login", 301)
 	}
 }

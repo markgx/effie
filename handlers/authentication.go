@@ -27,6 +27,12 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, db
 
 	if user != nil {
 		session.Set("user_id", user.ID)
+
+		if returnUrl := session.Get("return_url"); returnUrl != nil {
+			session.Set("return_url", nil)
+			http.Redirect(w, req, returnUrl.(string), 301)
+		}
+
 		http.Redirect(w, req, "/admin", 301)
 	}
 
