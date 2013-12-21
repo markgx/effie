@@ -71,6 +71,7 @@ func loadRoutes(m *martini.ClassicMartini) {
 	m.Get("/admin/posts", middleware.Authenticate, handlers.PostsIndex)
 	m.Get("/admin/posts/new", middleware.Authenticate, handlers.NewPost)
 	m.Post("/admin/posts", middleware.Authenticate, handlers.CreatePost)
+	m.Get("/admin/posts/edit/:id", middleware.Authenticate, handlers.EditPost)
 
 	m.Get("/login", handlers.Login)
 	m.Post("/login", binding.Form(handlers.LoginForm{}), handlers.LoginPost)

@@ -23,3 +23,13 @@ func (r *PostRepository) All() (*[]Post, error) {
 
 	return &posts, nil
 }
+
+func (r *PostRepository) FindByID(id int) (*Post, error) {
+	var post Post
+
+	if err := r.DbMap.SelectOne(&post, "SELECT * FROM posts WHERE ID=?", id); err != nil {
+		return nil, err
+	}
+
+	return &post, nil
+}
