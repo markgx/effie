@@ -33,3 +33,7 @@ func (r *PostRepository) FindByID(id int) (*Post, error) {
 
 	return &post, nil
 }
+
+func (r *PostRepository) Create(post *Post) error {
+	return r.DbMap.Insert(post)
+}

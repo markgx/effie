@@ -32,6 +32,7 @@ func DB(dsn string) martini.Handler {
 
 		dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
 		dbmap.AddTableWithName(models.User{}, "users").SetKeys(true, "ID")
+		dbmap.AddTableWithName(models.Post{}, "posts").SetKeys(true, "ID")
 
 		c.Map(dbmap)
 		defer db.Close()
@@ -70,7 +71,7 @@ func loadRoutes(m *martini.ClassicMartini) {
 
 	m.Get("/admin/posts", middleware.Authenticate, handlers.PostsIndex)
 	m.Get("/admin/posts/new", middleware.Authenticate, handlers.NewPost)
-	m.Post("/admin/posts", middleware.Authenticate, handlers.CreatePost)
+	m.Post("/admin/posts", middleware.Authenticate, binding.Form(handlers.PostForm{}), handlers.CreatePost)
 	m.Get("/admin/posts/edit/:id", middleware.Authenticate, handlers.EditPost)
 
 	m.Get("/login", handlers.Login)
