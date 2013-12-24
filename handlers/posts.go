@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"effie/models"
+	"effie/repositories"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
@@ -16,7 +17,7 @@ type PostForm struct {
 }
 
 func PostsIndex(dbmap *gorp.DbMap, r render.Render) {
-	postRepository := models.PostRepository{DbMap: dbmap}
+	postRepository := repositories.PostRepository{DbMap: dbmap}
 
 	posts, _ := postRepository.All()
 
@@ -33,7 +34,7 @@ func CreatePost(w http.ResponseWriter, req *http.Request, dbmap *gorp.DbMap,
 	session sessions.Session, postForm PostForm, r render.Render) {
 
 	// TODO: validate
-	postRepository := models.PostRepository{DbMap: dbmap}
+	postRepository := repositories.PostRepository{DbMap: dbmap}
 
 	post := models.Post{Title: postForm.Title, Body: postForm.Body}
 	postRepository.Create(&post)
@@ -43,7 +44,7 @@ func CreatePost(w http.ResponseWriter, req *http.Request, dbmap *gorp.DbMap,
 }
 
 func EditPost(w http.ResponseWriter, req *http.Request, dbmap *gorp.DbMap, params martini.Params, r render.Render) {
-	postRepository := models.PostRepository{DbMap: dbmap}
+	postRepository := repositories.PostRepository{DbMap: dbmap}
 
 	id, _ := strconv.Atoi(params["id"])
 

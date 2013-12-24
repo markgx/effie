@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"effie/models"
+	"effie/repositories"
 	"fmt"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
@@ -19,7 +19,7 @@ func Login(r render.Render) {
 }
 
 func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, dbmap *gorp.DbMap, session sessions.Session) string {
-	userRepository := models.UserRepository{DbMap: dbmap}
+	userRepository := repositories.UserRepository{DbMap: dbmap}
 
 	// TODO: verify log in
 
