@@ -23,7 +23,11 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, db
 
 	// TODO: verify log in
 
-	user, _ := userRepository.FindByUsername(loginForm.Username)
+	user, err := userRepository.FindByUsername(loginForm.Username)
+
+	if err != nil {
+		panic(err)
+	}
 
 	if user != nil {
 		session.Set("user_id", user.ID)

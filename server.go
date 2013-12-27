@@ -15,11 +15,11 @@ import (
 )
 
 type Config struct {
-	Database
+	Database `toml:"database"`
 }
 
 type Database struct {
-	DSN string
+	DSN string `toml:"dsn"`
 }
 
 func DB(dsn string) martini.Handler {
