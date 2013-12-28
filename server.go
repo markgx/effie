@@ -1,17 +1,14 @@
 package main
 
 import (
-	"database/sql"
 	"effie/handlers"
 	"effie/middleware"
-	"effie/models"
 	"github.com/BurntSushi/toml"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/binding"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
-	"github.com/coopernurse/gorp"
-	_ "github.com/go-sql-driver/mysql"
+	r "github.com/dancannon/gorethink"
 )
 
 type Config struct {
@@ -24,18 +21,17 @@ type Database struct {
 
 func DB(dsn string) martini.Handler {
 	return func(c martini.Context) {
-		db, err := sql.Open("mysql", dsn)
+		session, err := r.Connect(map[string]interface{}{
+			"address":  "localhost:28015",
+			"database": "effie",
+		})
 
 		if err != nil {
 			panic(err)
 		}
 
-		dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
-		dbmap.AddTableWithName(models.User{}, "users").SetKeys(true, "ID")
-		dbmap.AddTableWithName(models.Post{}, "posts").SetKeys(true, "ID")
-
-		c.Map(dbmap)
-		defer db.Close()
+		c.Map(session)
+		defer session.Close()
 		c.Next()
 	}
 }

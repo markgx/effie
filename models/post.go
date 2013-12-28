@@ -1,7 +1,7 @@
 package models
 
 type Post struct {
-	ID    int
-	Title string
-	Body  string
+	ID    int    `gorethink:"id,omitempty"`
+	Title string `gorethink:"title"`
+	Body  string `gorethink:"body"`
 }

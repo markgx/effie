@@ -2,19 +2,23 @@ package repositories
 
 import (
 	"effie/models"
-	"github.com/coopernurse/gorp"
+	r "github.com/dancannon/gorethink"
 )
 
 type PostRepository struct {
-	*gorp.DbMap
+	*r.Session
 }
 
-func (r *PostRepository) All() (*[]models.Post, error) {
+func (pr *PostRepository) All() (*[]models.Post, error) {
 	var posts []models.Post
 
-	if _, err := r.DbMap.Select(&posts, "SELECT * FROM posts"); err != nil {
+	rows, err := r.Table("posts").GetAll().Run(pr.Session)
+
+	if err != nil {
 		return nil, err
 	}
+
+	rows.ScanAll(&posts)
 
 	return &posts, nil
 }
@@ -22,13 +26,14 @@ func (r *PostRepository) All() (*[]models.Post, error) {
 func (r *PostRepository) FindByID(id int) (*models.Post, error) {
 	var post models.Post
 
-	if err := r.DbMap.SelectOne(&post, "SELECT * FROM posts WHERE ID=?", id); err != nil {
-		return nil, err
-	}
+	// if err := r.DbMap.SelectOne(&post, "SELECT * FROM posts WHERE ID=?", id); err != nil {
+	// 	return nil, err
+	// }
 
 	return &post, nil
 }
 
 func (r *PostRepository) Create(post *models.Post) error {
-	return r.DbMap.Insert(post)
+	// return r.DbMap.Insert(post)
+	return nil
 }

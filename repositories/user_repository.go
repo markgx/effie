@@ -2,22 +2,24 @@ package repositories
 
 import (
 	"effie/models"
-	"github.com/coopernurse/gorp"
+	r "github.com/dancannon/gorethink"
 )
 
 type UserRepository struct {
-	*gorp.DbMap
+	*r.Session
 }
 
-func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
+func (ur *UserRepository) FindByUsername(username string) (*models.User, error) {
 	var user models.User
 
-	if err := r.DbMap.SelectOne(&user, "SELECT * FROM users WHERE username = ?", username); err != nil {
+	rows, err := r.Table("users").Filter(r.Row.Field("username").Eq(username)).Run(ur.Session)
+
+	if err != nil {
 		return nil, err
 	}
 
-	if user.ID == 0 {
-		return nil, nil
+	if rows.Next() {
+		rows.Scan(&user)
 	}
 
 	return &user, nil

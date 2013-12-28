@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
-	"github.com/coopernurse/gorp"
+	r "github.com/dancannon/gorethink"
 	"net/http"
 )
 
@@ -18,8 +18,8 @@ func Login(r render.Render) {
 	r.HTML(200, "login", nil)
 }
 
-func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, dbmap *gorp.DbMap, session sessions.Session) string {
-	userRepository := repositories.UserRepository{DbMap: dbmap}
+func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rdbSession *r.Session, session sessions.Session) string {
+	userRepository := repositories.UserRepository{Session: rdbSession}
 
 	// TODO: verify log in
 
