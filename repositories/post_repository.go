@@ -10,30 +10,40 @@ type PostRepository struct {
 }
 
 func (pr *PostRepository) All() (*[]models.Post, error) {
-	var posts []models.Post
-
-	rows, err := r.Table("posts").GetAll().Run(pr.Session)
+	rows, err := r.Table("posts").Run(pr.Session)
 
 	if err != nil {
 		return nil, err
 	}
 
-	rows.ScanAll(&posts)
+	posts := []models.Post{}
+	if err = rows.ScanAll(&posts); err != nil {
+		return nil, err
+	}
 
 	return &posts, nil
 }
 
-func (r *PostRepository) FindByID(id int) (*models.Post, error) {
-	var post models.Post
+func (pr *PostRepository) FindByID(id string) (*models.Post, error) {
+	row, err := r.Table("posts").Get(id).RunRow(pr.Session)
 
-	// if err := r.DbMap.SelectOne(&post, "SELECT * FROM posts WHERE ID=?", id); err != nil {
-	// 	return nil, err
-	// }
+	if err != nil {
+		return nil, err
+	}
+
+	if row.IsNil() {
+		return nil, nil
+	}
+
+	var post models.Post
+	if err = row.Scan(&post); err != nil {
+		return nil, err
+	}
 
 	return &post, nil
 }
 
-func (r *PostRepository) Create(post *models.Post) error {
-	// return r.DbMap.Insert(post)
-	return nil
+func (pr *PostRepository) Create(post *models.Post) error {
+	_, err := r.Table("posts").Insert(post).RunWrite(pr.Session)
+	return err
 }

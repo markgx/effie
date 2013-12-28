@@ -8,7 +8,6 @@ import (
 	"github.com/codegangsta/martini-contrib/sessions"
 	r "github.com/dancannon/gorethink"
 	"net/http"
-	"strconv"
 )
 
 type PostForm struct {
@@ -46,7 +45,7 @@ func CreatePost(w http.ResponseWriter, req *http.Request, rdbSession *r.Session,
 func EditPost(w http.ResponseWriter, req *http.Request, rdbSession *r.Session, params martini.Params, r render.Render) {
 	postRepository := repositories.PostRepository{Session: rdbSession}
 
-	id, _ := strconv.Atoi(params["id"])
+	id, _ := params["id"]
 
 	post, _ := postRepository.FindByID(id)
 
