@@ -16,14 +16,15 @@ type Config struct {
 }
 
 type Database struct {
-	DSN string `toml:"dsn"`
+	Address  string `toml:"address"`
+	Database string `toml:"database"`
 }
 
-func DB(dsn string) martini.Handler {
+func DB(config *Config) martini.Handler {
 	return func(c martini.Context) {
 		session, err := r.Connect(map[string]interface{}{
-			"address":  "localhost:28015",
-			"database": "effie",
+			"address":  config.Database.Address,
+			"database": config.Database.Database,
 		})
 
 		if err != nil {
@@ -50,7 +51,7 @@ func main() {
 		Layout:    "layout",
 	}))
 
-	m.Use(DB(config.Database.DSN))
+	m.Use(DB(&config))
 
 	loadRoutes(m)
 	m.Run()

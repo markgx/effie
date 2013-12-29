@@ -1,2 +1,3 @@
 [database]
-dsn = "user:password@/dbname"
+address = "localhost:28015"
+database = "effie"
