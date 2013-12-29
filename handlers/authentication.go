@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"effie/repositories"
 	"encoding/base64"
-	"fmt"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
 	r "github.com/dancannon/gorethink"
@@ -17,16 +16,16 @@ type LoginForm struct {
 }
 
 func Login(r render.Render) {
-	r.HTML(200, "login", nil)
+	r.HTML(200, "login", struct{ ErrorMessage string }{})
 }
 
-func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rdbSession *r.Session, session sessions.Session) string {
+func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rdbSession *r.Session,
+	session sessions.Session, r render.Render) {
 	userRepository := repositories.UserRepository{Session: rdbSession}
 
 	user, err := userRepository.FindByUsername(loginForm.Username)
 
 	if err != nil {
-		// TODO: show error
 		panic(err)
 	}
 
@@ -42,7 +41,9 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rd
 	}
 
 	// TODO: authentication failed, show error
-	return fmt.Sprintf("U:%s P:%s v:%+v", loginForm.Username, loginForm.Password, user)
+	r.HTML(200, "login", struct{ ErrorMessage string }{
+		ErrorMessage: "Your username and/or password was incorrect",
+	})
 }
 
 func LogOut(w http.ResponseWriter, req *http.Request, session sessions.Session) {
