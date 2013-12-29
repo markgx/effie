@@ -22,11 +22,11 @@ func PostsIndex(rdbSession *r.Session, r render.Render) {
 
 	// TODO: show flash message
 
-	r.HTML(200, "posts_index", posts)
+	r.HTML(200, "posts/index", posts)
 }
 
 func NewPost(w http.ResponseWriter, req *http.Request, r render.Render) {
-	r.HTML(200, "post_form", nil)
+	r.HTML(200, "posts/form", nil)
 }
 
 func CreatePost(w http.ResponseWriter, req *http.Request, rdbSession *r.Session,
@@ -49,5 +49,5 @@ func EditPost(w http.ResponseWriter, req *http.Request, rdbSession *r.Session, p
 
 	post, _ := postRepository.FindByID(id)
 
-	r.HTML(200, "post_form", post)
+	r.HTML(200, "posts/form", post)
 }
