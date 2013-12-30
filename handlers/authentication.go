@@ -31,6 +31,7 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rd
 
 	if user != nil && hashString(loginForm.Password) == user.PasswordHash {
 		session.Set("user_id", user.ID)
+		session.Set("username", user.Username)
 
 		if returnUrl := session.Get("return_url"); returnUrl != nil {
 			session.Set("return_url", nil)
@@ -40,7 +41,7 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rd
 		http.Redirect(w, req, "/admin", 301)
 	}
 
-	// TODO: authentication failed, show error
+	// authentication failed, show error
 	r.HTML(200, "login", struct{ ErrorMessage string }{
 		ErrorMessage: "Your username and/or password was incorrect",
 	})
@@ -48,6 +49,7 @@ func LoginPost(w http.ResponseWriter, req *http.Request, loginForm LoginForm, rd
 
 func LogOut(w http.ResponseWriter, req *http.Request, session sessions.Session) {
 	session.Delete("user_id")
+	session.Delete("username")
 	http.Redirect(w, req, "/login", 301)
 }
 

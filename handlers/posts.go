@@ -3,6 +3,7 @@ package handlers
 import (
 	"effie/models"
 	"effie/repositories"
+	"effie/viewmodels"
 	"github.com/codegangsta/martini"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini-contrib/sessions"
@@ -15,14 +16,22 @@ type PostForm struct {
 	Body  string `form:"body"`
 }
 
-func PostsIndex(rdbSession *r.Session, r render.Render) {
+func PostsIndex(rdbSession *r.Session, session sessions.Session, r render.Render) {
 	postRepository := repositories.PostRepository{Session: rdbSession}
 
-	posts, _ := postRepository.All()
+	posts, err := postRepository.All()
+	if err != nil {
+		panic(err)
+	}
 
 	// TODO: show flash message
 
-	r.HTML(200, "posts/index", posts)
+	viewModel := viewmodels.PostsIndexViewModel{
+		BaseViewModel: *viewmodels.NewBaseViewModel(session),
+		Posts:         posts,
+	}
+
+	r.HTML(200, "posts/index", viewModel)
 }
 
 func NewPost(w http.ResponseWriter, req *http.Request, r render.Render) {
